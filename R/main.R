@@ -358,20 +358,68 @@ CalcMetaGene <- function(seurat_object, gene_list){
 #' @param genes An integer specifying the number of top genes to show in the plot.
 #' @return A bar plot showing the aggregated loadings across principal components.
 VizSummarizedLoadings <- function(seurat_object, dims = 15, genes = 20){
-    loadings_matrix <- seurat_object@reductions$pca@feature.loadings[,1:dims]
-    
-    # Calculate absolute loadings across all PCs
-    abs_loadings <- abs(loadings_matrix)
-    
-    # Sum up the absolute loadings for each feature
-    aggregated_loadings <- rowSums(abs_loadings)
-    
-    # Rank features based on aggregated loadings
-    sorted_features <- names(sort(aggregated_loadings, decreasing = TRUE))[1:genes]
-    # Visualize aggregated loadings (example using ggplot2)
-    
-    df <- data.frame(Feature = sorted_features, Aggregated_Loadings = aggregated_loadings[sorted_features])
-    df <- df[order(-df$Aggregated_Loadings), ]
-    ggplot(df, aes(x = Feature, y = Aggregated_Loadings)) +
-        geom_bar(stat = "identity", fill = "skyblue") +
-        theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  loadings_matrix <- seurat_object@reductions$pca@feature.loadings[,1:dims]
+  
+  # Calculate absolute loadings across all PCs
+  abs_loadings <- abs(loadings_matrix)
+  
+  # Sum up the absolute loadings for each feature
+  aggregated_loadings <- rowSums(abs_loadings)
+  
+  # Rank features based on aggregated loadings
+  sorted_features <- names(sort(aggregated_loadings, decreasing = TRUE))[1:genes]
+  # Visualize aggregated loadings (example using ggplot2)
+  
+  df <- data.frame(Feature = sorted_features, Aggregated_Loadings = aggregated_loadings[sorted_features])
+  df <- df[order(-df$Aggregated_Loadings), ]
+  ggplot(df, aes(x = Feature, y = Aggregated_Loadings)) +
+    geom_bar(stat = "identity", fill = "skyblue") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    labs(x = "Features", y = "Aggregated Loadings", title = "Feature Importance Across PCs")
+  
+}
+#' Calculate AUCell scores and add to Seurat object
+#'
+#' This function visualizes the aggregated loadings across principal components.
+#'
+#' @param seurat_object A Seurat object containing single-cell data.
+#' @param gene_list A character vector specifying the gene list to calculate the module score.
+#' @param col.name A string specifying the column name to store the AUCell scores.
+#' @return A Seurat object with AUCell scores added as metadata.
+CalculateAUCell <- function(seurat_object, gene_list, col.name){
+  if (options()$Seurat.object.assay.version != 'v3'){
+    seurat.option = options()$Seurat.object.assay.version
+    options(Seurat.object.assay.version = 'v3')
+  }else{
+    seurat.option = 'v3'
+  }
+  gex_matrix <- seurat_object@assays$RNA@counts
+  
+  cells_rankings <- AUCell_buildRankings(gex_matrix, plotStats=FALSE, col.name)
+  
+  geneSets <- list(geneSet1=gene_list)
+  
+  cells_AUC <- AUCell_run(gex_matrix, geneSets, aucMaxRank=nrow(cells_rankings)*0.05)
+  
+  seurat_object <- AddMetaData(seurat_object, t(as.data.frame(cells_AUC@assays@data$AUC)), col.name = col.name)
+  
+  options(Seurat.object.assay.version = seurat.option)
+  
+  return(seurat_object)
+}
+#' Visualize Summarized Loadings
+#'
+#' This function visualizes the aggregated loadings across principal components.
+#'
+#' @param seurat_object A Seurat object containing single-cell data.
+#' @param cell_names A character vector specifying the cell names to annotate.
+#' @param dimplot_ident A string specifying the metadata variable to group by in the DimPlot.
+#' @return A Seurat object with cell names annotated.
+AnnotateCell <- function(seurat_object, cell_names, group_ident = "cell_types", dimplot_ident = "orig.ident"){
+  plot <- DimPlot(seurat_object, group.by = dimplot_ident)
+  selected.cells <- CellSelector(plot, seurat_object)
+  cells <- WhichCells(object = selected.cells, idents = "SelectedCells")
+  cell.df <- data.frame(cells, cell_names, row.names = cells)
+  cell.df$cells <- NULL
+  seurat_object <- AddMetaData(seurat_object, cell.df, col.name = group_ident)
+}
