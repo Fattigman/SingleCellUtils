@@ -59,7 +59,7 @@ FilterDegs <- function(markers, seurat_object, n_genes = 6){
 #' @param cluster_name A string specifying the name of the cluster identity column in the Seurat object.
 #' @param reduced A logical specifying whether each orig.ident should be reduced to the smallest cell count.
 #' @return A plot showing the cluster composition in terms of original identities.
-ClusterComp <-  function(seurat_object, meta_data= "orig.ident", idents = NULL, cluster_name = "seurat_clusters", reduced = FALSE))
+ClusterComp <-  function(seurat_object, meta_data= "orig.ident", idents = NULL, cluster_name = "seurat_clusters", reduced = FALSE)
     if (reduced) {
         least_cells_sample <- rownames(as.matrix(table(seurat_object$orig.ident)[table(seurat_object$orig.ident) == min(table(seurat_object$orig.ident))]))
         least_cells <- table(seurat_object$orig.ident)[table(seurat_object$orig.ident) == min(table(seurat_object$orig.ident))][1]
