@@ -57,8 +57,29 @@ FilterDegs <- function(markers, seurat_object, n_genes = 6){
 #' @param meta_data A string specifying the metadata variable for original identities.
 #' @param idents A vector specifying the cluster identities to include in the analysis.
 #' @param cluster_name A string specifying the name of the cluster identity column in the Seurat object.
+#' @param reduced A logical specifying whether each orig.ident should be reduced to the smallest cell count.
 #' @return A plot showing the cluster composition in terms of original identities.
-ClusterComp <- function (seurat_object, meta_data = "orig.ident", idents = NULL, cluster_name = "seurat_clusters") {
+ClusterComp <-  function(seurat_object, meta_data= "orig.ident", idents = NULL, cluster_name = "seurat_clusters", reduced = FALSE))
+    if (reduced) {
+        least_cells_sample <- rownames(as.matrix(table(seurat_object$orig.ident)[table(seurat_object$orig.ident) == min(table(seurat_object$orig.ident))]))
+        least_cells <- table(seurat_object$orig.ident)[table(seurat_object$orig.ident) == min(table(seurat_object$orig.ident))][1]
+        cell_list <- c()
+        for (sample in unique(seurat_object$orig.ident)) {
+            # Create a subset of the data for the current sample
+            if (sample == least_cells_sample){
+                next
+            }
+            subset_sample <- seurat_object[,seurat_object$orig.ident == sample]
+            
+            # Sample 6413 column names from the subset
+            sampled_columns <- sample(colnames(subset_sample), least_cells)
+            
+            # Append the sampled columns to the cell_list
+            cell_list <- append(cell_list, sampled_columns)
+        }
+        gc()
+        seurat_object <- seurat_object[,cell_list]
+    }
     # Get the cluster identities and original identities
     cluster_ids <- seurat_object[[cluster_name]]
     orig_ids <- seurat_object@meta.data[[meta_data]]
