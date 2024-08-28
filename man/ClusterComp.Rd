@@ -8,7 +8,8 @@ ClusterComp(
   seurat_object,
   meta_data = "orig.ident",
   idents = NULL,
-  cluster_name = "seurat_clusters"
+  cluster_name = "seurat_clusters",
+  reduced = FALSE
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ ClusterComp(
 \item{idents}{A vector specifying the cluster identities to include in the analysis.}
 
 \item{cluster_name}{A string specifying the name of the cluster identity column in the Seurat object.}
+
+\item{reduced}{A logical specifying whether each orig.ident should be reduced to the smallest cell count.}
 }
 \value{
 A plot showing the cluster composition in terms of original identities.

@@ -4,7 +4,7 @@
 \alias{FilterDegs}
 \title{Filter Differentially Expressed Genes}
 \usage{
-FilterDegs(markers, seurat_object, n_genes = 6)
+FilterDegs(markers, seurat_object, n_genes = 6, p_filter = 0.05)
 }
 \arguments{
 \item{markers}{A data frame containing marker genes and their associated statistics.}
@@ -12,6 +12,8 @@ FilterDegs(markers, seurat_object, n_genes = 6)
 \item{seurat_object}{A Seurat object containing single-cell data.}
 
 \item{n_genes}{An integer specifying the number of top genes to select per cluster.}
+
+\item{p_filter}{A numeric specifying the p-value threshold for filtering.}
 }
 \value{
 A list of differentially expressed genes per cluster.
