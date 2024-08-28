@@ -15,6 +15,7 @@ library(dplyr)
 #' @param n_genes An integer specifying the number of top genes to select per cluster.
 #' @param p_filter A numeric specifying the p-value threshold for filtering.
 #' @return A list of differentially expressed genes per cluster.
+#' @export 
 FilterDegs <- function(markers, seurat_object, n_genes = 6, p_filter = 0.05){
     # Initialize an empty list for storing DEGs (differentially expressed genes)
     deg_list <- list()
@@ -62,6 +63,7 @@ FilterDegs <- function(markers, seurat_object, n_genes = 6, p_filter = 0.05){
 #' @param cluster_name A string specifying the name of the cluster identity column in the Seurat object.
 #' @param reduced A logical specifying whether each orig.ident should be reduced to the smallest cell count.
 #' @return A plot showing the cluster composition in terms of original identities.
+#' @export 
 ClusterComp <-  function(seurat_object, meta_data= "orig.ident", idents = NULL, cluster_name = "seurat_clusters", reduced = FALSE){
     if (reduced) {
         least_cells_sample <- rownames(as.matrix(table(seurat_object$orig.ident)[table(seurat_object$orig.ident) == min(table(seurat_object$orig.ident))]))
@@ -135,6 +137,7 @@ ClusterComp <-  function(seurat_object, meta_data= "orig.ident", idents = NULL, 
 #'
 #' @param seurat_object A Seurat object containing single-cell data.
 #' @return A list of dot plots showing the enriched gene ontology and KEGG pathways.
+#' @export 
 GO_KEGG <- function(seurat_object){
     
     
@@ -191,6 +194,7 @@ GO_KEGG <- function(seurat_object){
 #'
 #' @param file_paths A character vector specifying the file paths of the single-cell data.
 #' @return A merged Seurat object.
+#' @export 
 CreateSeuratList <- function(file_paths){
     # Initialize an empty list to store the Seurat objects for each sample
     seurat_list <- list()
@@ -230,6 +234,7 @@ CreateSeuratList <- function(file_paths){
 #'
 #' @param seurat_object A Seurat object containing single-cell data.
 #' @return A modified Seurat object with doublet information.
+#' @export 
 ApplyDoubletFinder <- function (seurat_object){
     
     seurat_object$percent.mito <- PercentageFeatureSet(object = seurat_object, pattern = "^MT-")
@@ -278,6 +283,7 @@ ApplyDoubletFinder <- function (seurat_object){
 #' @param seurat_object A Seurat object containing single-cell data.
 #' @param meta_data_var A string specifying the metadata variable to analyze.
 #' @return A bar plot showing the cell count per metadata variable.
+#' @export 
 CellCounts <- function(seurat_object, meta_data_var = "orig.ident") {
     # Extract the metadata from the Seurat object
     metadata <- seurat_object@meta.data
@@ -305,6 +311,7 @@ CellCounts <- function(seurat_object, meta_data_var = "orig.ident") {
 #' @param vars.to.regress A character vector specifying the variables to regress out during normalization.
 #' @param n.features An integer specifying the number of variable features to select.
 #' @return A normalized Seurat object.
+#' @export 
 SCTNormalize <- function(seurat_object, vars.to.regress = NULL, n.features = 3000){
     # Get genes that aren't Mitochondrial or chrY
     gene.table <- read.table("workspace/data/raw_external/hg38_gencode_v27.txt")
@@ -369,6 +376,7 @@ SCTNormalize <- function(seurat_object, vars.to.regress = NULL, n.features = 300
 #' @param seurat_object A Seurat object containing single-cell data.
 #' @param gene_list A character vector specifying the gene list to calculate the average expression.
 #' @return A numeric vector representing the average expression of the gene list.
+#' @export 
 CalcMetaGene <- function(seurat_object, gene_list){
     return(colMeans(x = seurat_object@assays$SCT$data[gene_list, ], na.rm = TRUE))
 }
@@ -381,6 +389,7 @@ CalcMetaGene <- function(seurat_object, gene_list){
 #' @param dims An integer specifying the number of principal components to consider.
 #' @param genes An integer specifying the number of top genes to show in the plot.
 #' @return A bar plot showing the aggregated loadings across principal components.
+#' @export 
 VizSummarizedLoadings <- function(seurat_object, dims = 15, genes = 20){
   loadings_matrix <- seurat_object@reductions$pca@feature.loadings[,1:dims]
   
@@ -410,6 +419,7 @@ VizSummarizedLoadings <- function(seurat_object, dims = 15, genes = 20){
 #' @param gene_list A character vector specifying the gene list to calculate the module score.
 #' @param col.name A string specifying the column name to store the AUCell scores.
 #' @return A Seurat object with AUCell scores added as metadata.
+#' @export 
 CalculateAUCell <- function(seurat_object, gene_list, col.name){
   if (options()$Seurat.object.assay.version != 'v3'){
     seurat.option = options()$Seurat.object.assay.version
@@ -439,6 +449,7 @@ CalculateAUCell <- function(seurat_object, gene_list, col.name){
 #' @param cell_names A character vector specifying the cell names to annotate.
 #' @param dimplot_ident A string specifying the metadata variable to group by in the DimPlot.
 #' @return A Seurat object with cell names annotated.
+#' @export 
 AnnotateCell <- function(seurat_object, cell_names, group_ident = "cell_types", dimplot_ident = "orig.ident"){
   plot <- DimPlot(seurat_object, group.by = dimplot_ident)
   selected.cells <- CellSelector(plot, seurat_object)
