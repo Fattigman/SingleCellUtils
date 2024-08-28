@@ -13,6 +13,7 @@ library(dplyr)
 #' @param markers A data frame containing marker genes and their associated statistics.
 #' @param seurat_object A Seurat object containing single-cell data.
 #' @param n_genes An integer specifying the number of top genes to select per cluster.
+#' @param p_filter A numeric specifying the p-value threshold for filtering.
 #' @return A list of differentially expressed genes per cluster.
 FilterDegs <- function(markers, seurat_object, n_genes = 6, p_filter = 0.05){
     # Initialize an empty list for storing DEGs (differentially expressed genes)
