@@ -14,7 +14,7 @@ library(dplyr)
 #' @param seurat_object A Seurat object containing single-cell data.
 #' @param n_genes An integer specifying the number of top genes to select per cluster.
 #' @return A list of differentially expressed genes per cluster.
-FilterDegs <- function(markers, seurat_object, n_genes = 6){
+FilterDegs <- function(markers, seurat_object, n_genes = 6, p_filter = 0.05){
     # Initialize an empty list for storing DEGs (differentially expressed genes)
     deg_list <- list()
     if ("cluster" %in% names(markers)){
@@ -27,6 +27,7 @@ FilterDegs <- function(markers, seurat_object, n_genes = 6){
                 group_by(cluster) %>%
                 filter(avg_log2FC > 1, cluster == i) %>%
                 arrange(p_val_adj) %>%
+                filter(p_val_adj < p_filter) %>%
                 slice_head(n = n_genes) %>%
                 pull(gene)
             # Check if any DEGs were found
@@ -39,6 +40,7 @@ FilterDegs <- function(markers, seurat_object, n_genes = 6){
         degs <- markers %>%
             filter(avg_log2FC > 1) %>%
             arrange(p_val_adj) %>%
+            filter(p_val_adj < p_filter) %>%
             slice_head(n = n_genes)
         
         degs <- rownames(degs)
