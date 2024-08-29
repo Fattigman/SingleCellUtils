@@ -27,7 +27,7 @@ FilterDegs <- function(markers, seurat_object, n_genes = 6, p_filter = 0.05){
             # Filter markers based on avg_log2FC and cluster
             degs <- markers %>%
                 group_by(cluster) %>%
-                filter(avg_log2FC > 1, cluster == i) %>%
+                filter(abs(avg_log2FC) > 1, cluster == i) %>%
                 arrange(p_val_adj) %>%
                 filter(p_val_adj < p_filter) %>%
                 slice_head(n = n_genes) %>%
@@ -40,7 +40,7 @@ FilterDegs <- function(markers, seurat_object, n_genes = 6, p_filter = 0.05){
     }else {
         
         degs <- markers %>%
-            filter(avg_log2FC > 1) %>%
+            filter(abs(avg_log2FC) > 1) %>%
             arrange(p_val_adj) %>%
             filter(p_val_adj < p_filter) %>%
             slice_head(n = n_genes)
