@@ -8,7 +8,7 @@ library(dplyr)
 
 #' Filter Differentially Expressed Genes
 #'
-#' This function filters differentially expressed genes based on average log2 fold change and cluster information.
+#' This function filters differentially expressed genes based on average log2 fold change and cluster information. Very important!
 #'
 #' @param markers A data frame containing marker genes and their associated statistics.
 #' @param seurat_object A Seurat object containing single-cell data.
